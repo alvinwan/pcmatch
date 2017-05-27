@@ -2,7 +2,11 @@
 
 Usage:
     label.py icp
-    label.py opnorm
+
+Options:
+    --templates=<path>  Path to templates [default: ./data/templates/*.npy]
+    --raw=<path>        Path to unclassified data [default: ./data/raw/*.npy]
+    --out=<out>         Path for final results [default: ./out/labels.npy]
 """
 
 import docopt
@@ -90,8 +94,12 @@ def main():
     use_icp = arguments['icp']
     use_opnorm = arguments['opnorm']
 
-    P_templates = load_data('./data/templates/*.npy')
-    P = load_data('./data/data/*.npy')
+    template_path = arguments['--template']
+    raw_path = arguments['--raw']
+    out_path = arguments['--out']
+
+    P_templates = load_data(template_path)
+    P = load_data(raw_path)
 
     if use_icp:
         labels = label_icp(P_templates, P)
@@ -99,7 +107,7 @@ def main():
         labels = label_opnorm(P_templates, P)
 
     os.makedirs('./out', exist_ok=True)
-    np.save('./out/labels.npy', labels)
+    np.save(out_path, labels)
 
 if __name__ == '__main__':
     main()
