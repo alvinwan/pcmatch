@@ -40,7 +40,7 @@ def label(templates: np.array, samples: np.array) -> np.array:
     """Use ICP to classify all samples."""
     labels = None
     for sample in samples:
-        distances = [icp(sample, template)[1] for template in templates]
+        distances = [np.sum(icp(sample, template)[1]) for template in templates]
         label = np.array([int(np.argmin(distances)), np.min(distances)])
         labels = label if labels is None else np.vstack((labels, label))
     labels[:,1] = 1 - (labels[:,1] / np.max(labels[:,1]))
