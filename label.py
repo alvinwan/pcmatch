@@ -13,6 +13,7 @@ import docopt
 import glob
 import numpy as np
 import os
+import os.path
 from thirdparty.icp import icp
 
 from math import atan
@@ -28,7 +29,9 @@ def load_data(path_glob: str) -> np.array:
     for path in sorted(glob.iglob(path_glob)):
         p = np.load(path)
         if len(p.shape) == 3:
-            p = p[0,:,:3]
+            n = np.prod(p.shape[:2])
+            p = p.reshape((n, -1))
+            p = p[:,:3][np.nonzero(p)[0]]
         P.append(p)
     return P
 
@@ -38,7 +41,7 @@ def label(templates: np.array, samples: np.array) -> np.array:
     labels = None
     for sample in samples:
         distances = [icp(sample, template)[1] for template in templates]
-        label = np.array([np.argmin(distances), np.min(distances)])
+        label = np.array([int(np.argmin(distances)), np.min(distances)])
         labels = label if labels is None else np.vstack((labels, label))
     labels[:,1] = 1 - (labels[:,1] / np.max(labels[:,1]))
     return labels
@@ -56,7 +59,7 @@ def main():
 
     labels = label(templates, samples)
 
-    os.makedirs('./out', exist_ok=True)
+    os.makedirs(os.path.basename(out_path), exist_ok=True)
     np.save(out_path, labels)
 
 if __name__ == '__main__':
