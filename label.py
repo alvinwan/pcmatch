@@ -21,6 +21,8 @@ from sklearn import linear_model
 from scipy.sparse.linalg import svds
 from scipy.ndimage.interpolation import rotate
 from sklearn.decomposition import PCA
+from typing import List
+from typing import Callable
 
 
 def load_data(path_glob: str) -> np.array:
@@ -40,9 +42,15 @@ def label(templates: np.array, samples: np.array) -> np.array:
     """Use ICP to classify all samples."""
     labels = None
     for sample in samples:
-        distances = [np.sum(icp(sample, template)[1]) for template in templates]
-        label = np.array([int(np.argmin(distances)), np.min(distances)])
+        results = [icp(sample, template, max_iterations=1) for template in templates]
+        distances = [np.sum(distance) for _, _, distance in results]
+
+        i = int(np.argmin(distances))
+        T, t, _ = results[i]  # T (4x4) and t (3x1)
+        label = np.hstack((distances[i], np.ravel(T), np.ravel(t)))
         labels = label if labels is None else np.vstack((labels, label))
+    if labels is None:
+        raise UserWarning('No samples found.')
     labels[:,1] = 1 - (labels[:,1] / np.max(labels[:,1]))
     return labels
 

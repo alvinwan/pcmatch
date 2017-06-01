@@ -106,6 +106,6 @@ def icp(A, B, init_pose=None, max_iterations=20, tolerance=0.001):
         prev_error = mean_error
 
     # calculate final transformation
-    T,_,_ = best_fit_transform(A, src[0:3,:].T)
+    T,_,t = best_fit_transform(A, src[0:3,:].T)
 
-    return T, distances
+    return T, t, distances

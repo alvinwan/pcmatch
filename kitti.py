@@ -13,12 +13,13 @@ import os
 import os.path
 from label import load_data
 from label import label
+import numpy as np
 
 
 def main():
     arguments = docopt.docopt(__doc__)
     template_path = arguments['--templates']
-    path_kitti = arguments['<kitti>']
+    path_kitti = arguments['--kitti']
 
     drives = []
     for date in os.listdir(path_kitti):
@@ -36,7 +37,7 @@ def main():
                 samples = load_data(samples_path)
                 labels = label(templates, samples)
                 out_path = os.path.join('./out', date, drive, 'labels.npy')
-                os.makedirs(os.path.basename(out_path), exist_ok=True)
+                os.makedirs(os.path.dirname(out_path), exist_ok=True)
                 np.save(out_path, labels)
 
 
