@@ -1,0 +1,19 @@
+body {
+  color: #ffffff;
+  background-color: #000000;
+  margin: 0px;
+  overflow: hidden;
+}
+#info {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  padding: 1em;
+  font-family: 'Open Sans';
+  font-size: 0.8em;
+  text-align: center;
+  font-weight: bold;
+}
+a {
+  color: #fff;
+}
