@@ -3,6 +3,9 @@
 Uses iterative closest point (ICP) to match sample point clouds to templates.
 To visualize the results in an interactive viewer, see [`viewer/`](http://github.com/alvinwan/pcmatch/tree/master/viewer).
 
+> To convert existing .stl, .obj, .xaml, .pkl etc. objects into numpy arrays,
+see [this gist](https://gist.github.com/alvinwan/06c875531dc57fdd5dce6cf56ed8cbc3) I wrote. The script additionally centers and scales the point cloud.
+
 # Install
 
 The project is written in Python 3 and is not guaranteed to successfully backport to Python 2.
