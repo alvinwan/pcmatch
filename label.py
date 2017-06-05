@@ -47,7 +47,7 @@ def label(templates: np.array, samples: np.array) -> np.array:
 
         i = int(np.argmin(distances))
         T, t, _ = results[i]  # T (4x4) and t (3x1)
-        label = np.hstack((distances[i], np.ravel(T), np.ravel(t)))
+        label = np.hstack((i, distances[i], np.ravel(T), np.ravel(t)))
         labels = label if labels is None else np.vstack((labels, label))
     if labels is None:
         raise UserWarning('No samples found.')

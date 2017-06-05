@@ -1,6 +1,6 @@
 var renderer, scene, camera, stats;
 
-var particles, uniforms, grid;
+var particles1, particles2, uniforms, grid;
 
 var PARTICLE_SIZE = 20;
 
@@ -13,7 +13,7 @@ function initGrid(scene) {
   scene.add( grid );
 }
 
-function initParticlesForTemplate(scene, template_name) {
+function initParticlesForTemplate(template_name, offset) {
   var vertices = templates[template_name];
 
   var positions = new Float32Array( vertices.length * 3 );
@@ -30,7 +30,7 @@ function initParticlesForTemplate(scene, template_name) {
     positions[i * 3 + 1] = vertex.z;
     positions[i * 3 + 2] = vertex.y;
 
-    color.setHSL( 0.01 + 0.1 * ( i / l ), 1.0, 0.5 );
+    color.setHSL( offset + 0.1 * ( i / l ), 1.0, 0.5 );
     color.toArray( colors, i * 3 );
 
     sizes[ i ] = PARTICLE_SIZE * 0.5;
@@ -56,8 +56,8 @@ function initParticlesForTemplate(scene, template_name) {
   } );
 
 
-  particles = new THREE.Points( geometry, material );
-  scene.add( particles );
+  var particles = new THREE.Points( geometry, material );
+  return particles;
 }
 
 function init() {
@@ -71,7 +71,10 @@ function init() {
   camera.position.z = 500;
 
   initGrid(scene);
-  initParticlesForTemplate(scene, 'small');
+  particles1 = initParticlesForTemplate('small', 0.01);
+  particles2 = initParticlesForTemplate('bus', 0.5);
+  scene.add( particles1 );
+  scene.add( particles2 );
 
   renderer = new THREE.WebGLRenderer();
   renderer.setPixelRatio( window.devicePixelRatio );
@@ -104,7 +107,8 @@ function animate() {
 function render() {
 
   rate = 0.005
-  particles.rotation.y += rate;
+  particles1.rotation.y += rate;
+  particles2.rotation.y += rate;
   grid.rotation.y += rate;
 
   renderer.render( scene, camera );
