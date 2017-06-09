@@ -1,7 +1,8 @@
 """Convert clouds to clusters.
 
 Usage:
-    cloud_to_clusters.py <path> [options]
+    cloud_to_clusters.py path <path> [options]
+    cloud_to_clusters.py dir <dir> [options]
 
 Options:
     --out=<out>     Directory containing output [default: ./out]
@@ -13,6 +14,19 @@ import docopt
 import glob
 import numpy as np
 import os.path
+
+
+def write_clouds_dir_to_clusters(clouds_dir: str, out_dir: str):
+    """Write all clouds contained in subdirectories from cloud_dir/.
+
+    Hardcoded to use the directory structure in KITTI_raw at Aspire.
+
+    cloud_dir/<drive>/seg/data/*.npy
+    """
+    for directory in os.listdir(clouds_dir):
+        clouds_path = os.path.join(clouds_dir, directory, 'seg', 'data', '*.npy')
+        new_out_dir = os.path.join(out_dir, directory)
+        write_clouds_to_clusters(clouds_path, new_out_dir)
 
 
 def write_clouds_to_clusters(clouds_path: str, out_dir: str):
@@ -61,7 +75,10 @@ def write_clusters(clusters: np.array, cluster_dir: str):
 
 def main():
     arguments = docopt.docopt(__doc__)
-    write_clouds_to_clusters(arguments['<path>'], arguments['--out'])
+    if arguments['path']:
+        write_clouds_to_clusters(arguments['<path>'], arguments['--out'])
+    else:
+        write_clouds_dir_to_clusters(arguments['<dir>'], arguments['--out'])
 
 
 if __name__ == '__main__':
