@@ -2,11 +2,12 @@
 
 Usage:
     label.py [options]
+    label.py raw_dir <dir> [options]
 
 Options:
     --template=<path>   Path to templates [default: ./data/templates/*.npy]
     --raw=<path>        Path to unclassified data [default: ./data/raw/*.npy]
-    --out=<out>         Path for final results [default: ./out/labels.npy]
+    --out=<out>         Directory for final results [default: ./out]
 """
 
 import docopt
@@ -16,26 +17,10 @@ import os
 import os.path
 from thirdparty.icp import icp
 
-from math import atan
-from sklearn import linear_model
-from scipy.sparse.linalg import svds
-from scipy.ndimage.interpolation import rotate
-from sklearn.decomposition import PCA
-from typing import List
-from typing import Callable
-
 
 def load_data(path_glob: str) -> np.array:
-    """Load all point clouds."""
-    P = []
-    for path in sorted(glob.iglob(path_glob)):
-        p = np.load(path)
-        if len(p.shape) == 3:
-            n = np.prod(p.shape[:2])
-            p = p.reshape((n, -1))
-            p = p[:,:3][np.nonzero(p)[0]]
-        P.append(p)
-    return P
+    """Load all point clouds. Expects points to be n x k"""
+    return [np.load(path)[:, :3] for path in sorted(glob.iglob(path_glob))]
 
 
 def label(templates: np.array, samples: np.array) -> np.array:
@@ -47,12 +32,40 @@ def label(templates: np.array, samples: np.array) -> np.array:
 
         i = int(np.argmin(distances))
         T, t, _ = results[i]  # T (4x4) and t (3x1)
-        label = np.hstack((i, distances[i], np.ravel(T), np.ravel(t)))
+        label = np.hstack((i, distances[i], np.ravel(T), np.ravel(t))).reshape((1, -1))
         labels = label if labels is None else np.vstack((labels, label))
     if labels is None:
         raise UserWarning('No samples found.')
-    labels[:,1] = 1 - (labels[:,1] / np.max(labels[:,1]))
+    labels[:, 1] = 1 - (labels[:, 1] / np.max(labels[:, 1]))
     return labels
+
+
+def write_dir_labels(template_path: str, raw_dir: str, out_dir: str):
+    """Write labels for all clusters in specified directory.
+
+    Hardcoded to use the directory structure in cloud_to_clusters.
+
+    raw_dir/<drive>/<cloud>/*.npy
+    """
+    for directory in os.listdir(raw_dir):
+        drive_dir = os.path.join(raw_dir, directory)
+        for subdirectory in os.listdir(drive_dir):
+            raw_path = os.path.join(drive_dir, subdirectory, '*.npy')
+            out_path = os.path.join(out_dir, directory, subdirectory, 'labels.npy')
+            write_labels(template_path, raw_path, out_path)
+
+
+def write_labels(template_path: str, raw_path: str, out_path: str):
+    """Label all files specified by raw_path."""
+    templates = load_data(template_path)
+    samples = load_data(raw_path)
+
+    labels = label(templates, samples)
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    np.save(out_path, labels)
+
+    print(' * [INFO] Finished processing timestep. (saved to ', out_path, ')')
 
 
 def main():
@@ -60,15 +73,14 @@ def main():
 
     template_path = arguments['--template']
     raw_path = arguments['--raw']
-    out_path = arguments['--out']
+    out_dir = arguments['--out']
 
-    templates = load_data(template_path)
-    samples = load_data(raw_path)
+    if arguments['raw_dir']:
+        write_dir_labels(template_path, arguments['<dir>'], out_dir)
+    else:
+        out_path = os.path.join(out_dir, 'labels.npy')
+        write_labels(template_path, raw_path, out_path)
 
-    labels = label(templates, samples)
-
-    os.makedirs(os.path.basename(out_path), exist_ok=True)
-    np.save(out_path, labels)
 
 if __name__ == '__main__':
     main()
