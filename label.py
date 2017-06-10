@@ -60,7 +60,11 @@ def write_labels(template_path: str, raw_path: str, out_path: str):
     templates = load_data(template_path)
     samples = load_data(raw_path)
 
-    labels = label(templates, samples)
+    try:
+        labels = label(templates, samples)
+    except UserWarning:
+        print(' * [INFO] No samples found for timestep.')
+        return
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     np.save(out_path, labels)
