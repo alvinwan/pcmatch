@@ -1,6 +1,5 @@
 .idea
 data/
-viewer/data
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

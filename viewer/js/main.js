@@ -76,8 +76,8 @@ function init() {
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-  camera.position.y = 250;
-  camera.position.z = 500;
+  camera.position.y = 150;
+  camera.position.z = 350;
 
   initGrid(scene);
   obj_name = '25.450996_12.848589_-2.044799'
