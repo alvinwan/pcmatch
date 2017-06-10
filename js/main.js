@@ -4,6 +4,8 @@ var particles1, particles2, uniforms, grid;
 
 var PARTICLE_SIZE = 20;
 
+var class_index_to_name = ['bus', 'pickup', 'sedan', 'small', 'sports', 'truck', 'van']
+
 init();
 animate();
 
@@ -14,7 +16,14 @@ function initGrid(scene) {
 }
 
 function initParticlesForTemplate(template_name, offset) {
-  var vertices = templates[template_name];
+  return initParticlesForObject(templates[template_name], offset, 1);
+}
+
+function initParticlesForCluster(obj_name, offset) {
+  return initParticlesForObject(data[obj_name]['vertices'], offset, 5/3);
+}
+
+function initParticlesForObject(vertices, offset, multiplier) {
 
   var positions = new Float32Array( vertices.length * 3 );
   var colors = new Float32Array( vertices.length * 3 );
@@ -26,9 +35,9 @@ function initParticlesForTemplate(template_name, offset) {
   for ( var i = 0, l = vertices.length; i < l; i ++ ) {
 
     vertex = vertices[ i ];
-    positions[i * 3] = vertex.x;
-    positions[i * 3 + 1] = vertex.z;
-    positions[i * 3 + 2] = vertex.y;
+    positions[i * 3] = vertex.x * multiplier;
+    positions[i * 3 + 1] = vertex.z * multiplier;
+    positions[i * 3 + 2] = vertex.y * multiplier;
 
     color.setHSL( offset + 0.1 * ( i / l ), 1.0, 0.5 );
     color.toArray( colors, i * 3 );
@@ -71,8 +80,10 @@ function init() {
   camera.position.z = 500;
 
   initGrid(scene);
-  particles1 = initParticlesForTemplate('small', 0.01);
-  particles2 = initParticlesForTemplate('bus', 0.5);
+  obj_name = '25.450996_12.848589_-2.044799'
+  particles1 = initParticlesForCluster(obj_name, 0.5);
+  particles2 = initParticlesForTemplate(
+    class_index_to_name[data[obj_name]['label']], 0.01);
   scene.add( particles1 );
   scene.add( particles2 );
 
