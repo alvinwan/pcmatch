@@ -61,12 +61,17 @@ def write_cluster_to_js(raw_path: str, label_path: str, out_path: str, variable:
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     data = {}
-    pcs, paths, i = load_data(raw_path), glob.iglob(raw_path), 0
+    pcs = [np.load(path) for path in sorted(glob.iglob(raw_path))]
+    paths, i = glob.iglob(raw_path), 0
     labels = np.load(label_path) if label_path is not None else paths
 
     for path, pc, label in zip(paths, pcs, labels):
-        obj_name = os.path.basename(path).replace('.npy', '').replace('.stl',
-                                                                      '')
+        obj_name = os.path.basename(path).replace('.npy', '').replace('.stl', '')
+        if label_path is not None:
+            T = label[2: 18].reshape((4, 4))
+            t = T[:3, 3]
+            R = T[:3, :3]
+            pc = (pc - t).dot(R)
         data[obj_name] = {
             'vertices': [{'x': x, 'y': y, 'z': z} for x, y, z in pc]}
         if label_path is not None:

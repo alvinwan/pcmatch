@@ -55,7 +55,19 @@ def cloud_to_clusters(cloud: np.array) -> np.array:
             clusters[center].append(vertex)
 
     print(' * [INFO]', len(list(clusters.keys())), 'clusters found')
+    for key in clusters:
+        clusters[key] = process_cluster(np.vstack(clusters[key]))
     return clusters
+
+
+def process_cluster(cluster: np.array, scale: float=25.0) -> np.array:
+    """Pre-process the cluster.
+
+    We first demean and then scale up the object.
+    """
+    demeaned = cluster[:, :3] - cluster[:, 6:9]
+    demeaned[:, :3] *= scale
+    return demeaned
 
 
 def get_cluster_dir(cloud_path: str, out_dir: str) -> str:
