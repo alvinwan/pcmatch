@@ -79,13 +79,9 @@ function init() {
   camera.position.y = 150;
   camera.position.z = 350;
 
+  initNav();
   initGrid(scene);
-  obj_name = '25.450996_12.848589_-2.044799'
-  particles1 = initParticlesForCluster(obj_name, 0.5);
-  particles2 = initParticlesForTemplate(
-    class_index_to_name[data[obj_name]['label']], 0.01);
-  scene.add( particles1 );
-  scene.add( particles2 );
+  show(document.getElementById('obj0'), Object.keys(data)[0]);
 
   renderer = new THREE.WebGLRenderer();
   renderer.setPixelRatio( window.devicePixelRatio );
@@ -96,6 +92,50 @@ function init() {
 
   window.addEventListener( 'resize', onWindowResize, false );
 
+}
+
+function initNav() {
+    navigation = document.getElementById('navigation');
+    var i = 0;
+    for (key in data) {
+        var li = document.createElement('li');
+        var element = document.createElement('a');
+        li.appendChild(element);
+        element.innerHTML = i + 1;
+        element.id = 'obj' + i;
+        wrapper = function(key) { return function() { show(this, key); }}
+        element.onclick = wrapper(key);
+        navigation.appendChild(li);
+        i += 1;
+    }
+}
+
+function clearNav() {
+    for (var i = 0; i < Object.keys(data).length; i++) {
+        document.getElementById('obj' + i).className = '';
+    }
+}
+
+function show(button, obj_name) {
+    clearNav();
+    button.className += "selected";
+    var rotation = 0;
+
+    if (particles1 !== undefined) {
+        scene.remove(particles1);
+        scene.remove(particles2);
+        rotation = particles1.rotation.y;
+    }
+
+    particles1 = initParticlesForCluster(obj_name, 0.5);
+    particles2 = initParticlesForTemplate(
+        class_index_to_name[data[obj_name]['label']], 0.01);
+
+    particles1.rotation.y = rotation;
+    particles2.rotation.y = rotation;
+
+    scene.add(particles1);
+    scene.add(particles2);
 }
 
 function onWindowResize() {
