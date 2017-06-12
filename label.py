@@ -2,20 +2,22 @@
 
 Usage:
     label.py [options]
-    label.py raw_dir <dir> [options]
+    label.py dir <dir> [options]
 
 Options:
     --template=<path>   Path to templates [default: ./data/templates/*.npy]
     --raw=<path>        Path to unclassified data [default: ./data/raw/*.npy]
-    --out=<out>         Directory for final results [default: ./out]
+    --out=<out>         Directory for final results [default: ./data/labelled]
 """
 
-import docopt
 import glob
-import numpy as np
 import os
 import os.path
-from thirdparty.icp import icp
+
+import docopt
+import numpy as np
+
+from icp import icp
 
 
 def load_data(path_glob: str) -> np.array:
@@ -28,10 +30,10 @@ def label(templates: np.array, samples: np.array) -> np.array:
     labels = None
     for sample in samples:
         results = [icp(sample, template, max_iterations=1) for template in templates]
-        distances = [np.sum(distance) for _, _, distance in results]
+        distances = [np.sum(distance) for _, distance in results]
 
         i = int(np.argmin(distances))
-        T, _ = results[i]  # T (4x4) and t (3x1)
+        T, _ = results[i]  # T (4x4 homogenous transformation)
         label = np.hstack((i, distances[i], np.ravel(T))).reshape((1, -1))
         labels = label if labels is None else np.vstack((labels, label))
     if labels is None:
@@ -79,7 +81,7 @@ def main():
     raw_path = arguments['--raw']
     out_dir = arguments['--out']
 
-    if arguments['raw_dir']:
+    if arguments['dir']:
         write_dir_labels(template_path, arguments['<dir>'], out_dir)
     else:
         out_path = os.path.join(out_dir, 'labels.npy')

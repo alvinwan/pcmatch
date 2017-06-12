@@ -1,7 +1,9 @@
 """
-Original scripy by Clay Fannigan. Improvement by Max Bazik
+Original scripy by Clay Fannigan. Improvement by Max Bazik, with scaling added
+by Alvin Wan, per:
 
-Source: https://github.com/MaxBazik/icp
+Scaling iterative closest point algorithm for registration of m–D point sets
+ - Du et al. (https://doi.org/10.1016/j.jvcir.2010.02.005)
 """
 
 import numpy as np
@@ -16,7 +18,8 @@ def best_fit_transform(A, B):
     Returns:
       T: 4x4 homogeneous transformation matrix
       R: 3x3 rotation matrix
-      t: 3x1 column vector
+      t: 3x1 column vector for translation
+      s: 3x1 column vector for scaling
     '''
 
     assert len(A) == len(B)
@@ -44,6 +47,14 @@ def best_fit_transform(A, B):
     T = np.identity(4)
     T[0:3, 0:3] = R
     T[0:3, 3] = t
+
+    # compute scaling
+    E = np.array([np.diag([j == i for j in range(3)]).astype(int) for i in range(3)])
+    s = np.array([
+        sum(a.T.dot(R).dot(Ej).dot(b) for a, b in zip(A, B)) /
+        sum(b.T.dot(Ej).dot(b) for b in B)
+        for Ej in E])
+    R = np.diag(s).dot(R)
 
     return T, R, t
 
@@ -97,7 +108,7 @@ def icp(A, B, init_pose=None, max_iterations=20, tolerance=0.001):
         T,_,_ = best_fit_transform(src[0:3,:].T, dst[0:3,indices].T)
 
         # update the current source
-        src = np.dot(T, src)
+        src = T.dot(src)
 
         # check error
         mean_error = np.sum(distances) / distances.size
@@ -106,6 +117,6 @@ def icp(A, B, init_pose=None, max_iterations=20, tolerance=0.001):
         prev_error = mean_error
 
     # calculate final transformation
-    T,_,_ = best_fit_transform(A, src[0:3,:].T)
+    T, _, _ = best_fit_transform(A, src[0:3,:].T)
 
     return T, distances
