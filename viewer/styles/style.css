@@ -35,10 +35,12 @@ nav li {
     list-style:none;
 }
 nav li:first-child a {
-    border-radius:0.25em 0.25em 0 0;
+    border-top-left-radius: 0.25em;
+    border-top-right-radius: 0.25em;
 }
 nav li:last-child a {
-    border-radius:0 0 0.25em 0.25em;
+    border-bottom-right-radius: 0.25em;
+    border-bottom-left-radius: 0.25em;
 }
 nav a.selected {
     color:#FFF;

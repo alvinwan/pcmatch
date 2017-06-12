@@ -4,7 +4,7 @@ var particles1, particles2, uniforms, grid;
 
 var PARTICLE_SIZE = 5;
 
-var class_index_to_name = ['bus', 'pickup', 'sedan', 'small', 'sports', 'truck', 'van']
+var class_index_to_name = ['bus', 'pickup', 'sedan', 'small', 'sports', 'sports_wheel', 'truck', 'van']
 
 init();
 animate();
@@ -16,11 +16,11 @@ function initGrid(scene) {
 }
 
 function initParticlesForTemplate(template_name, offset) {
-  return initParticlesForObject(templates[template_name]['vertices'], offset);
+  return initParticlesForObject(templates[template_name]['vertices'], offset, 1);
 }
 
 function initParticlesForCluster(obj_name, offset) {
-  return initParticlesForObject(data[obj_name]['vertices'], offset);
+  return initParticlesForObject(data[obj_name]['vertices'], offset, 1/2);
 }
 
 function initParticlesForObject(vertices, offset, multiplier) {
@@ -35,9 +35,9 @@ function initParticlesForObject(vertices, offset, multiplier) {
   for ( var i = 0, l = vertices.length; i < l; i ++ ) {
 
     vertex = vertices[ i ];
-    positions[i * 3] = vertex.x;
-    positions[i * 3 + 1] = vertex.z;
-    positions[i * 3 + 2] = vertex.y;
+    positions[i * 3] = vertex.x * multiplier;
+    positions[i * 3 + 1] = vertex.z * multiplier;
+    positions[i * 3 + 2] = vertex.y * multiplier;
 
     color.setHSL( offset + 0.1 * ( i / l ), 1.0, 0.5 );
     color.toArray( colors, i * 3 );
