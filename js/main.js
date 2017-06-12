@@ -2,7 +2,7 @@ var renderer, scene, camera, stats;
 
 var particles1, particles2, uniforms, grid;
 
-var PARTICLE_SIZE = 20;
+var PARTICLE_SIZE = 5;
 
 var class_index_to_name = ['bus', 'pickup', 'sedan', 'small', 'sports', 'truck', 'van']
 
@@ -10,17 +10,17 @@ init();
 animate();
 
 function initGrid(scene) {
-  grid = new THREE.GridHelper( 1000, 20 );
+  grid = new THREE.GridHelper( 200, 20 );
   grid.setColors( 0xffffff, 0xffffff );
   scene.add( grid );
 }
 
 function initParticlesForTemplate(template_name, offset) {
-  return initParticlesForObject(templates[template_name], offset, 1);
+  return initParticlesForObject(templates[template_name]['vertices'], offset);
 }
 
 function initParticlesForCluster(obj_name, offset) {
-  return initParticlesForObject(data[obj_name]['vertices'], offset, 5/3);
+  return initParticlesForObject(data[obj_name]['vertices'], offset);
 }
 
 function initParticlesForObject(vertices, offset, multiplier) {
@@ -35,9 +35,9 @@ function initParticlesForObject(vertices, offset, multiplier) {
   for ( var i = 0, l = vertices.length; i < l; i ++ ) {
 
     vertex = vertices[ i ];
-    positions[i * 3] = vertex.x * multiplier;
-    positions[i * 3 + 1] = vertex.z * multiplier;
-    positions[i * 3 + 2] = vertex.y * multiplier;
+    positions[i * 3] = vertex.x;
+    positions[i * 3 + 1] = vertex.z;
+    positions[i * 3 + 2] = vertex.y;
 
     color.setHSL( offset + 0.1 * ( i / l ), 1.0, 0.5 );
     color.toArray( colors, i * 3 );
@@ -76,8 +76,8 @@ function init() {
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-  camera.position.y = 150;
-  camera.position.z = 350;
+  camera.position.y = 50;
+  camera.position.z = 75;
 
   initNav();
   initGrid(scene);
@@ -128,11 +128,13 @@ function show(button, obj_name) {
     }
 
     particles1 = initParticlesForCluster(obj_name, 0.5);
-    particles2 = initParticlesForTemplate(
-        class_index_to_name[data[obj_name]['label']], 0.01);
-
     particles1.rotation.y = rotation;
-    particles2.rotation.y = rotation;
+
+    if ('label' in data[obj_name]) {
+        particles2 = initParticlesForTemplate(
+            class_index_to_name[data[obj_name]['label']], 0.01);
+        particles2.rotation.y = rotation;
+    }
 
     scene.add(particles1);
     scene.add(particles2);
@@ -159,8 +161,11 @@ function render() {
 
   rate = 0.005
   particles1.rotation.y += rate;
-  particles2.rotation.y += rate;
   grid.rotation.y += rate;
+
+  if (particles2 !== undefined) {
+    particles2.rotation.y += rate;
+  }
 
   renderer.render( scene, camera );
 
