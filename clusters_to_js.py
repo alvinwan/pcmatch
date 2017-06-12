@@ -6,7 +6,7 @@ Usage:
     convert.py dir <raw_dir> <label_dir> [options]
 
 Options:
-    --out=<out>     Directory for output [default: ./viewer/js/data/]
+    --out=<out>     Directory for output [default: ./data/js]
     --variable=<v>  Name of variable to assign all data [default: data]
 """
 
@@ -15,8 +15,6 @@ import glob
 import os
 import os.path
 import numpy as np
-
-from label import load_data
 
 
 def main():
@@ -62,8 +60,11 @@ def write_cluster_to_js(raw_path: str, label_path: str, out_path: str, variable:
 
     data = {}
     pcs = [np.load(path) for path in sorted(glob.iglob(raw_path))]
-    paths, i = glob.iglob(raw_path), 0
+    paths, i = list(glob.iglob(raw_path)), 0
     labels = np.load(label_path) if label_path is not None else paths
+
+    if not len(paths):
+        print('No files found at %s' % raw_path)
 
     for path, pc, label in zip(paths, pcs, labels):
         obj_name = os.path.basename(path).replace('.npy', '').replace('.stl', '')
@@ -71,7 +72,7 @@ def write_cluster_to_js(raw_path: str, label_path: str, out_path: str, variable:
             T = label[2: 18].reshape((4, 4))
             t = T[:3, 3]
             R = T[:3, :3]
-            pc = (pc - t).dot(R)
+            pc = (pc - pc.mean(axis=0) - t).dot(R)
         data[obj_name] = {
             'vertices': [{'x': x, 'y': y, 'z': z} for x, y, z in pc]}
         if label_path is not None:

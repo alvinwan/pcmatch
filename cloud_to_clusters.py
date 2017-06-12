@@ -5,7 +5,7 @@ Usage:
     cloud_to_clusters.py dir <dir> [options]
 
 Options:
-    --out=<out>     Directory containing output [default: ./out]
+    --out=<out>     Directory containing output [default: ./data/clusters]
 """
 
 from collections import defaultdict
@@ -60,7 +60,7 @@ def cloud_to_clusters(cloud: np.array) -> np.array:
     return clusters
 
 
-def process_cluster(cluster: np.array, scale: float=25.0) -> np.array:
+def process_cluster(cluster: np.array, scale: float=3.0) -> np.array:
     """Pre-process the cluster.
 
     We first demean and then scale up the object.
