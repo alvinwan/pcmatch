@@ -95,23 +95,28 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
 
     prev_error = 0
 
-    for i in range(max_iterations):
-        # find the nearest neighbours between the current source and destination points
-        distances, indices = nearest_neighbor(src[0:3,:].T, dst[0:3,:].T)
+    try:
 
-        # compute the transformation between the current source and nearest destination points
-        T, _, _, s = best_fit_transform(src[0:3,:].T, dst[0:3,indices].T)
+        for i in range(max_iterations):
+            # find the nearest neighbours between the current source and destination points
+            distances, indices = nearest_neighbor(src[0:3,:].T, dst[0:3,:].T)
 
-        # update the current source
-        src = T.dot(src) * s
+            # compute the transformation between the current source and nearest destination points
+            T, _, _, s = best_fit_transform(src[0:3,:].T, dst[0:3,indices].T)
 
-        # check error
-        mean_error = np.sum(distances) / distances.size
-        if abs(prev_error-mean_error) < tolerance:
-            break
-        prev_error = mean_error
+            # update the current source
+            src = T.dot(src) * s
 
-    # calculate final transformation
-    T, _, _, s = best_fit_transform(A, src[0:3,:].T)
+            # check error
+            mean_error = np.sum(distances) / distances.size
+            if abs(prev_error-mean_error) < tolerance:
+                break
+            prev_error = mean_error
 
-    return T, s, distances
+        # calculate final transformation
+        T, _, _, s = best_fit_transform(A, src[0:3,:].T)
+
+        return T, s, distances
+    except ValueError as e:
+        print(e)
+        return np.eye(4), 1, np.array([np.inf])

@@ -72,7 +72,7 @@ def write_labels(template_path: str, raw_path: str, out_path: str):
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     np.save(out_path, labels)
 
-    print(' * [INFO] Finished processing timestep. (saved to ', out_path, ')')
+    print(' * [INFO] Finished', out_path)
 
 
 def main():
