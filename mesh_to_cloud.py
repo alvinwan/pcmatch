@@ -34,6 +34,9 @@ PICKUP_LENGTH = 228
 SMALL_LENGTH = 106
 BUS_LENGTH = 500
 JEEP_LENGTH = 132
+SUV_LENGTH = 240
+PEDESTRIAN_HEIGHT = 69
+CYCLIST_LENGTH = 68
 
 
 def array(name):
@@ -106,6 +109,9 @@ def main():
 @mesh('small', total=SMALL_LENGTH)
 @mesh('bus', total=BUS_LENGTH)
 @mesh('jeep', total=JEEP_LENGTH)
+@mesh('suv', total=SUV_LENGTH)
+@mesh('pedestrian', total=PEDESTRIAN_HEIGHT)
+@mesh('cyclist', total=CYCLIST_LENGTH)
 def rescale(mesh: trimesh.Trimesh, total: float) -> trimesh.Trimesh:
     mesh.apply_scale(total / mesh.scale)
     return mesh
@@ -116,6 +122,9 @@ def swap_x_z(points: np.array) -> np.array:
     return points
 
 
+@array('pickup')
+@array('pedestrian')
+@array('suv')
 @array('van')
 @array('jeep')
 @array('sports')

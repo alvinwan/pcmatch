@@ -7,7 +7,7 @@ Usage:
 
 Options:
     --transform     Whether or not
-    --out=<out>     Directory for output [default: ./data/js]
+    --out=<out>     Directory or path for output [default: ./data/js]
     --variable=<v>  Name of variable to assign all data [default: data]
 """
 
@@ -32,7 +32,10 @@ def main():
             arguments['--out'],
             variable)
     else:
-        out_path = os.path.join(out_dir, 'output.js')
+        if not out_dir.endswith('.js'):
+            out_path = os.path.join(out_dir, 'output.js')
+        else:
+            out_path = out_dir
         write_cluster_to_js(input_path, label_path, out_path, variable)
 
 
