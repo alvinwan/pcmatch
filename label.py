@@ -30,11 +30,12 @@ def label(templates: np.array, samples: np.array) -> np.array:
     labels = None
     for sample in samples:
         results = [icp(sample, template) for template in templates]
-        distances = [np.sum(distance) for _, distance in results]
+        distances = [np.sum(distance) for _, _, distance in results]
 
         i = int(np.argmin(distances))
-        T, _ = results[i]  # T (4x4 homogenous transformation)
-        label = np.hstack((i, distances[i], np.ravel(T), distances)).reshape((1, -1))
+        T, s, _ = results[i]  # T (4x4 homogenous transformation)
+        label = np.hstack((i, distances[i], np.ravel(T), s, distances)).reshape((1, -1))
+        print(' * [Info] Final distance:', distances[i])
         labels = label if labels is None else np.vstack((labels, label))
     if labels is None:
         raise UserWarning('No samples found.')

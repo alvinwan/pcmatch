@@ -40,23 +40,18 @@ def best_fit_transform(A, B):
        Vt[2,:] *= -1
        R = np.dot(Vt.T, U.T)
 
+    # compute scaling
+    s = sum(b.T.dot(a) for a, b in zip(AA, BB)) / sum(a.T.dot(a) for a in AA)
+
     # translation
-    t = centroid_B.T - np.dot(R,centroid_A.T)
+    t = centroid_B.T - s * np.dot(R, centroid_A.T)
 
     # homogeneous transformation
     T = np.identity(4)
     T[0:3, 0:3] = R
     T[0:3, 3] = t
 
-    # compute scaling
-    E = np.array([np.diag([j == i for j in range(3)]).astype(int) for i in range(3)])
-    s = np.array([
-        sum(a.T.dot(R).dot(Ej).dot(b) for a, b in zip(A, B)) /
-        sum(b.T.dot(Ej).dot(b) for b in B)
-        for Ej in E])
-    R = np.diag(s).dot(R)
-
-    return T, R, t
+    return T, R, t, s
 
 def nearest_neighbor(src, dst):
     '''
@@ -74,7 +69,7 @@ def nearest_neighbor(src, dst):
     distances, indices = neigh.kneighbors(src, return_distance=True)
     return distances.ravel(), indices.ravel()
 
-def icp(A, B, init_pose=None, max_iterations=100, tolerance=0.0001):
+def icp(A, B, init_pose=None, max_iterations=100, tolerance=1e-10):
     '''
     The Iterative Closest Point method
     Input:
@@ -105,10 +100,10 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=0.0001):
         distances, indices = nearest_neighbor(src[0:3,:].T, dst[0:3,:].T)
 
         # compute the transformation between the current source and nearest destination points
-        T,_,_ = best_fit_transform(src[0:3,:].T, dst[0:3,indices].T)
+        T, _, _, s = best_fit_transform(src[0:3,:].T, dst[0:3,indices].T)
 
         # update the current source
-        src = T.dot(src)
+        src = T.dot(src) * s
 
         # check error
         mean_error = np.sum(distances) / distances.size
@@ -117,6 +112,6 @@ def icp(A, B, init_pose=None, max_iterations=100, tolerance=0.0001):
         prev_error = mean_error
 
     # calculate final transformation
-    T, _, _ = best_fit_transform(A, src[0:3,:].T)
+    T, _, _, s = best_fit_transform(A, src[0:3,:].T)
 
-    return T, distances
+    return T, s, distances
