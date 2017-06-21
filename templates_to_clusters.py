@@ -23,6 +23,9 @@ def transform(name: str):
     sedan_rotated = sedan.dot(R)
     np.save('./data/test/%s_rotated.npy' % name, sedan_rotated)
 
+    sedan_obscured = sedan[sedan[:, 0] > 0] + 1
+    np.save('./data/test/%s_obscured.npy' % name, sedan_obscured)
+
     sedan += t
     sedan *= s
     sedan_transformed = sedan.dot(R)

@@ -4,8 +4,7 @@ var particles1, particles2, uniforms, grid;
 
 var PARTICLE_SIZE = 5;
 
-//var class_index_to_name = ['bus', 'jeep', 'pickup', 'sedan', 'small', 'sports', 'truck', 'van']
-var class_index_to_name = ['small']
+var class_index_to_name = ['bus', 'jeep', 'pickup', 'sedan', 'small', 'sports', 'truck', 'van']
 
 init();
 animate();
