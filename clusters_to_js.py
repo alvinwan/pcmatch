@@ -6,6 +6,7 @@ Usage:
     convert.py dir <raw_dir> <label_dir> [options]
 
 Options:
+    --transform     Whether or not
     --out=<out>     Directory for output [default: ./data/js]
     --variable=<v>  Name of variable to assign all data [default: data]
 """
@@ -69,10 +70,10 @@ def write_cluster_to_js(raw_path: str, label_path: str, out_path: str, variable:
     for path, pc, label in zip(paths, pcs, labels):
         obj_name = os.path.basename(path).replace('.npy', '').replace('.stl', '')
         if label_path is not None:
+            M = np.ones((4, pc.shape[0]))
+            M[:3, :] = pc.T
             T = label[2: 18].reshape((4, 4))
-            t = T[:3, 3]
-            R = T[:3, :3]
-            pc = (pc - pc.mean(axis=0) - t).dot(R)
+            pc = T.dot(M)[:3, :].T
         data[obj_name] = {
             'vertices': [{'x': x, 'y': y, 'z': z} for x, y, z in pc]}
         if label_path is not None:

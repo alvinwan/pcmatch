@@ -29,12 +29,12 @@ def label(templates: np.array, samples: np.array) -> np.array:
     """Use ICP to classify all samples."""
     labels = None
     for sample in samples:
-        results = [icp(sample, template, max_iterations=1) for template in templates]
+        results = [icp(sample, template) for template in templates]
         distances = [np.sum(distance) for _, distance in results]
 
         i = int(np.argmin(distances))
         T, _ = results[i]  # T (4x4 homogenous transformation)
-        label = np.hstack((i, distances[i], np.ravel(T))).reshape((1, -1))
+        label = np.hstack((i, distances[i], np.ravel(T), distances)).reshape((1, -1))
         labels = label if labels is None else np.vstack((labels, label))
     if labels is None:
         raise UserWarning('No samples found.')
