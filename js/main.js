@@ -4,7 +4,8 @@ var particles1, particles2, uniforms, grid;
 
 var PARTICLE_SIZE = 5;
 
-var class_index_to_name = ['bus', 'pickup', 'sedan', 'small', 'sports', 'sports_wheel', 'truck', 'van']
+//var class_index_to_name = ['bus', 'jeep', 'pickup', 'sedan', 'small', 'sports', 'truck', 'van']
+var class_index_to_name = ['small']
 
 init();
 animate();
@@ -20,7 +21,7 @@ function initParticlesForTemplate(template_name, offset) {
 }
 
 function initParticlesForCluster(obj_name, offset) {
-  return initParticlesForObject(data[obj_name]['vertices'], offset, 1/2);
+  return initParticlesForObject(data[obj_name]['vertices'], offset, 1);
 }
 
 function initParticlesForObject(vertices, offset, multiplier) {
