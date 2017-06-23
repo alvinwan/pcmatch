@@ -1,10 +1,8 @@
 # Point Cloud Matching
 
-Uses iterative closest point (ICP) to match sample point clouds to templates.
-To visualize the results in an interactive viewer, see [`viewer/`](http://github.com/alvinwan/pcmatch/tree/master/viewer).
+Uses iterative closest point (ICP) to match sample point clouds to templates. Includes utilities to convert existing .stl, .obj, .xaml, .pkl etc. objects into point cloud, numpy arrays. To visualize the results in an interactive viewer, see [`viewer/`](http://github.com/alvinwan/pcmatch/tree/master/viewer).
 
-> To convert existing .stl, .obj, .xaml, .pkl etc. objects into numpy arrays,
-see [this gist](https://gist.github.com/alvinwan/06c875531dc57fdd5dce6cf56ed8cbc3) I wrote. The script additionally centers and scales the point cloud.
+![screen shot 2017-06-20 at 12 05 20 am](https://user-images.githubusercontent.com/2068077/27471822-f273a15a-57ad-11e7-916a-c79a4d404d49.png)
 
 # Install
 
@@ -50,3 +48,5 @@ Options:
     --raw=<path>        Path to unclassified data [default: ./data/raw/*.npy]
     --out=<out>         Path for final results [default: ./out/labels.npy]
 ```
+
+![templates](https://user-images.githubusercontent.com/2068077/27471876-24453f86-57ae-11e7-9fdd-074dd0c4e6dc.gif)
