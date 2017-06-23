@@ -23,7 +23,7 @@ def write_clouds_dir_to_clusters(clouds_dir: str, out_dir: str):
 
     cloud_dir/<drive>/seg/data/*.npy
     """
-    for directory in os.listdir(clouds_dir):
+    for directory in sorted(os.listdir(clouds_dir)):
         clouds_path = os.path.join(clouds_dir, directory, 'seg', 'data', '*.npy')
         new_out_dir = os.path.join(out_dir, directory)
         write_clouds_to_clusters(clouds_path, new_out_dir)
@@ -65,7 +65,8 @@ def process_cluster(cluster: np.array, scale: float=3.0) -> np.array:
 
     We first demean and then scale up the object.
     """
-    demeaned = cluster[:, :3] - cluster[:, 6:9]
+    demeaned = cluster.copy()
+    demeaned[:, :3] -= cluster[:, 6:9]
     demeaned[:, :3] *= scale
     return demeaned
 
@@ -82,7 +83,9 @@ def write_clusters(clusters: np.array, cluster_dir: str):
     """Writes all clusters to individual numpy files."""
     for center, vertices in clusters.items():
         out_path = os.path.join(cluster_dir, '%f_%f_%f' % center)
-        np.save(out_path, np.vstack(vertices))
+        out_data = np.vstack(vertices)
+        assert out_data.shape[1] > 3
+        np.save(out_path, out_data)
 
 
 def main():

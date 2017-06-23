@@ -32,4 +32,3 @@ def transform(name: str):
     np.save('./data/test/%s_transformed.npy' % name, sedan_transformed)
 
 transform('sedan')
-transform('small')

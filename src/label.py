@@ -20,9 +20,39 @@ import numpy as np
 from icp import icp
 
 
-def load_data(path_glob: str) -> np.array:
-    """Load all point clouds. Expects points to be n x k"""
-    return [np.load(path)[:, :3] for path in sorted(glob.iglob(path_glob))]
+class_index_to_name = [
+    'unknown',
+    'car',
+    'van',
+    'truck',
+    'pedestrian',
+    'person (sitting)',
+    'cyclist',
+    'tram',
+    'misc',
+]
+
+template_index_to_name = [
+    'sedan',
+    'suv',
+    'van'
+]
+
+ALLOWED_CLASS_NAMES = {'car', 'van'}
+
+
+def load_data(path_glob: str, return_labels: bool=False) -> np.array:
+    """Load all point clouds. Expects points to be n x k
+
+    Returns:
+        list of clusters
+        list of labels
+    """
+    data = [np.load(path) for path in sorted(glob.iglob(path_glob))]
+    if return_labels:
+        return [datum[:, :3] for datum in data], \
+               [datum[:, 5].astype(int) for datum in data]
+    return [datum[:, :3] for datum in data]
 
 
 def label(templates: np.array, samples: np.array) -> np.array:
@@ -35,7 +65,8 @@ def label(templates: np.array, samples: np.array) -> np.array:
         i = int(np.argmin(distances))
         T, s, _ = results[i]  # T (4x4 homogenous transformation)
         label = np.hstack((i, distances[i], np.ravel(T), s, distances)).reshape((1, -1))
-        print(' * [Info] Final distance:', distances[i])
+        print(' * [Info] Final distance:', distances[i],
+              'Label:', template_index_to_name[i])
         labels = label if labels is None else np.vstack((labels, label))
     if labels is None:
         raise UserWarning('No samples found.')
@@ -62,6 +93,13 @@ def write_labels(template_path: str, raw_path: str, out_path: str):
     """Label all files specified by raw_path."""
     templates = load_data(template_path)
     samples = load_data(raw_path)
+    # samples, classes = load_data(raw_path, return_labels=True)
+
+    # filtered_samples = []
+    # for sample, class_indices in zip(samples, classes):
+    #     filtered_samples.append(np.vstack([
+    #         sample for sample, class_idx in zip(sample, class_indices)
+    #         if class_index_to_name[class_idx] in ALLOWED_CLASS_NAMES]))
 
     try:
         labels = label(templates, samples)

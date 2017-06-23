@@ -77,9 +77,11 @@ def write_cluster_to_js(raw_path: str, label_path: str, out_path: str, variable:
             M[:3, :] = pc.T
             T = label[2: 18].reshape((4, 4))
             s = label[18]
+            print(s)
             pc = T.dot(M)[:3, :].T * s
         data[obj_name] = {
             'vertices': [{'x': x, 'y': y, 'z': z} for x, y, z in pc]}
+        print(label[19:])
         if label_path is not None:
             data[obj_name]['label'] = int(label[0])
 

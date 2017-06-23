@@ -51,7 +51,9 @@ def array(name):
         def function(*args, **kwargs):
             print(' * [INFO] Array hook for %s run.' % name)
             return f(*args, **kwargs)
-        array_hooks[name] = function
+        if name not in array_hooks:
+            array_hooks[name] = []
+        array_hooks[name].append(function)
         return f
     return decorator
 
@@ -96,7 +98,8 @@ def main():
         points = sample_surface(mesh, n) * scale
         points -= points.mean(axis=0)
         if name in array_hooks:
-            points = array_hooks[name](points)
+            for function in array_hooks[name]:
+                points = function(points)
         output_path = os.path.join(output_dir, name)
         np.save(output_path, points)
 
@@ -117,8 +120,11 @@ def rescale(mesh: trimesh.Trimesh, total: float) -> trimesh.Trimesh:
     return mesh
 
 
+@array('pickup')
+@array('van')
+@array('suv')
 def swap_x_z(points: np.array) -> np.array:
-    points[:, 0], points[:, 1] = points[:, 1].copy(), points[:, 0].copy()
+    points[:, 2], points[:, 0] = points[:, 0].copy(), points[:, 2].copy()
     return points
 
 
